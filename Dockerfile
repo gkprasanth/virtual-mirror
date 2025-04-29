@@ -22,8 +22,8 @@ ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
 #create venv
-RUN python3.6 -m venv ./venv
-RUN /bin/bash -c "source ./venv/bin/activate"
+# RUN python3.6 -m venv ./venv
+# RUN /bin/bash -c "source ./venv/bin/activate"
 
 # upgrade pip3
 RUN pip3 install --upgrade pip
@@ -37,4 +37,4 @@ RUN cd /opt/cmate/ && pip3 install --no-cache-dir -r requirements.txt \
 WORKDIR $ROOT_DIR/src/flask_app/
 
 EXPOSE 8080
-ENTRYPOINT flask run --host=0.0.0.0 --port=8080
+CMD ["flask", "run", "--host=0.0.0.0", "--port=8080"]
