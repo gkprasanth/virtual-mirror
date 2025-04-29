@@ -1,39 +1,35 @@
 FROM ubuntu:18.04
 
 RUN apt-get update && apt-get install -y python3.6 \
-    python3-pip python3-venv sudo
-RUN apt-get install -y apt-transport-https
-RUN apt-get install -y wget
+    python3-pip python3-venv sudo apt-transport-https wget
 
-# INSTALL TKINTER FOR Matplotlib-Ubuntu
-# ARG DEBIAN_FRONTEND=noninteractive
-# ENV TZ=Europe/Moscow
-# RUN apt-get install python3-tk -y
-
+# Set up project directory
 RUN mkdir -p /opt/cmate/
 COPY . /opt/cmate/
 
-# set env variables
+# Set environment variables
 ENV ROOT_DIR="/opt/cmate"
 ENV SECRET_KEY="your_own_secret_key"
-ENV FLASK_APP=wsgi.py
-# For flask run command
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
-#create venv
-# RUN python3.6 -m venv ./venv
-# RUN /bin/bash -c "source ./venv/bin/activate"
-
-# upgrade pip3
+# Upgrade pip
 RUN pip3 install --upgrade pip
+
+# Install project dependencies
+RUN cd $ROOT_DIR && pip3 install --no-cache-dir -r requirements.txt --default-timeout=100
 
 # Download model files
 RUN cd $ROOT_DIR/src/cmate/segmentation/models && sh get_models.sh
 
-RUN cd /opt/cmate/ && pip3 install --no-cache-dir -r requirements.txt \
-    --default-timeout=100
+# Install Gunicorn
+RUN pip3 install gunicorn
 
-WORKDIR /opt/virtual-mirror/src/flask_app/
+# Set working directory to where wsgi.py is located
+WORKDIR $ROOT_DIR/src/flask_app/
+
+# Expose the port the app runs on
 EXPOSE 8080
-CMD ["flask", "run", "--host=0.0.0.0", "--port=8080"]
+
+# Run with Gunicorn in production
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "wsgi:app"]
