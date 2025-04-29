@@ -34,7 +34,6 @@ RUN cd $ROOT_DIR/src/cmate/segmentation/models && sh get_models.sh
 RUN cd /opt/cmate/ && pip3 install --no-cache-dir -r requirements.txt \
     --default-timeout=100
 
-WORKDIR $ROOT_DIR/src/flask_app/
-
+WORKDIR /opt/virtual-mirror/src/flask_app/
 EXPOSE 8080
 CMD ["flask", "run", "--host=0.0.0.0", "--port=8080"]
